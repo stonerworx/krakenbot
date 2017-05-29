@@ -1,0 +1,24 @@
+{
+  "name": "krakenbot",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "repository": {
+    "url": "git+https://github.com/stonerworx/krakenbot.git",
+    "type": "git"
+  },
+  "keywords": [],
+  "author": "David Steiner <david@stonerworx.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/stonerworx/krakenbot/issues"
+  },
+  "homepage": "https://github.com/stonerworx/krakenbot#readme",
+  "dependencies": {
+    "kraken-api": "^0.1.7",
+    "queue": "^4.2.1"
+  }
+}
