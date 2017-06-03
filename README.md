@@ -11,16 +11,4 @@ Run it somewhere as a regular job, ie. on heroku.
 
 Use at your own risk.
 
-Currencies that work at the moment:
-* XBT
-* ETH
-* LTC
-* ZEC
-
-Currencies that don't work at the moment:
-* XMR
-* XRP
-* XLM
-* DASH
-
 Feel free to contribute, adapt, or just use.
