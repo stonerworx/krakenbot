@@ -1,5 +1,6 @@
 module.exports = {
   baseCurrency: 'EUR',
+  tradePercentage: 100,
   currencies: {
     'XBT': {
       percentage: 30,

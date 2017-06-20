@@ -17,7 +17,12 @@
     "url": "https://github.com/stonerworx/krakenbot/issues"
   },
   "homepage": "https://github.com/stonerworx/krakenbot#readme",
+  "engines": {
+    "node": "8.1.2"
+  },
   "dependencies": {
+    "dotenv": "^4.0.0",
+    "firebase-admin": "^5.0.0",
     "kraken-api": "^0.1.7",
     "queue": "^4.2.1"
   }
