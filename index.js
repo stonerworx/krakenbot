@@ -5,19 +5,27 @@ if (!process.env.KRAKEN_API_KEY || !process.env.KRAKEN_API_SECRET) {
   process.exit();
 }
 
-const total = Object.keys(config.currencies).reduce((previous, currency) =>
-  previous + parseFloat(config.currencies[currency].percentage), 0);
+const total = Object.keys(config.currencies).reduce(
+  (previous, currency) =>
+    previous + parseFloat(config.currencies[currency].percentage),
+  0
+);
 if (total !== 100) {
   console.error(`Currency distribution needs to be 100% (is: ${total}%).`);
   process.exit();
 }
 
-const KrakenClient = require('kraken-api');
-const kraken = new KrakenClient(process.env.KRAKEN_API_KEY, process.env.KRAKEN_API_SECRET);
+const KrakenClient = require('./kraken');
+const kraken = new KrakenClient(
+  process.env.KRAKEN_API_KEY,
+  process.env.KRAKEN_API_SECRET,
+  undefined,
+  60000
+);
 
 const q = require('queue')({
   autostart: true,
-  concurrency: 1,
+  concurrency: 1
 });
 
 kraken.api('Balance', null, (error, data) => {
@@ -46,8 +54,8 @@ kraken.api('Balance', null, (error, data) => {
 
 function getRates(cb, retries) {
   const pairs = Object.keys(config.currencies)
-  .map((currency) => `X${currency}Z${config.baseCurrency}`)
-  .join(',');
+    .map(currency => `X${currency}Z${config.baseCurrency}`)
+    .join(',');
 
   kraken.api('Ticker', { pair: pairs }, (error, data) => {
     if (error) {
@@ -62,11 +70,16 @@ function getRates(cb, retries) {
 }
 
 function calculateDistribution(balance) {
-  getRates((rates) => {
+  getRates(rates => {
     console.log(`Buying crypto for ${balance} ${config.baseCurrency}.`);
     for (currency of Object.keys(config.currencies)) {
-      const volume = Math.floor(balance / 100 * config.currencies[currency].percentage * 100) / 100;
-      const rate = parseFloat(rates[`X${currency}Z${config.baseCurrency}`].a[0]);
+      const volume =
+        Math.floor(
+          balance / 100 * config.currencies[currency].percentage * 100
+        ) / 100;
+      const rate = parseFloat(
+        rates[`X${currency}Z${config.baseCurrency}`].a[0]
+      );
       const volumeInCrypto = 1 / rate * volume;
       buy(currency, volumeInCrypto, volume, rate, 5);
     }
@@ -75,18 +88,22 @@ function calculateDistribution(balance) {
 
 function buy(currency, volumeInCrypto, volume, limit, retries) {
   if (volume < 1) {
-    console.log(`${volume} ${config.baseCurrency} is not enough to buy ${currency}.`);
+    console.log(
+      `${volume} ${config.baseCurrency} is not enough to buy ${currency}.`
+    );
     return;
   }
-  q.push((cb) => {
-    console.log(`Buying ${volumeInCrypto} ${currency} for ${volume} ${config.baseCurrency} (${limit} ${config.baseCurrency}).`);
+  q.push(cb => {
+    console.log(
+      `Buying ${volumeInCrypto} ${currency} for ${volume} ${config.baseCurrency} (${limit} ${config.baseCurrency}).`
+    );
     const order = {
       pair: `X${currency}Z${config.baseCurrency}`,
       type: 'buy',
       ordertype: 'limit',
       price: limit,
       trading_agreement: 'agree',
-      volume: volumeInCrypto,
+      volume: volumeInCrypto
     };
     kraken.api('AddOrder', order, (error, data) => {
       if (error) {
@@ -104,12 +121,12 @@ function buy(currency, volumeInCrypto, volume, limit, retries) {
 }
 
 function withdraw(asset, amount, key, retries) {
-  q.push((cb) => {
+  q.push(cb => {
     console.log(`Withdrawing ${amount} ${asset} to ${key}`);
     const withdrawal = {
       asset,
       key,
-      amount,
+      amount
     };
     kraken.api('Withdraw', withdrawal, (error, data) => {
       if (error) {
